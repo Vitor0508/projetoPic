@@ -1,0 +1,114 @@
+[PROJECT]
+Target=main.hex
+Processor_Text=PIC16F877A
+CCSVerions=5.076
+Compiler=PCM
+CCSVersion=5.076
+[Target Data]
+FileList=main.c
+[Directories]
+Include=
+[E:\Doc Vitor\Projeto pic em c\Treinamento\main]
+Type=4
+[mru-list]
+1=main.c
+
+[fileformats]
+forcecoff=0
+
+[ProjectLog]
+Days=5
+D1=11-06-2024
+D1_L=19
+D1_L1=[69960]Project Opened.
+D1_L2=[70061]Started Editing.
+D1_L3=[70362]Stopped Editing.
+D1_L4=[70932]Started Editing.
+D1_L5=[71454]Stopped Editing.
+D1_L6=[71898]Started Editing.
+D1_L7=[72433]Stopped Editing.
+D1_L8=[72524]Started Editing.
+D1_L9=[72875]Stopped Editing.
+D1_L10=[73111]Started Editing.
+D1_L11=[73413]Stopped Editing.
+D1_L12=[73547]Started Editing.
+D1_L13=[73849]Stopped Editing.
+D1_L14=[74338]Started Editing.
+D1_L15=[75314]Stopped Editing.
+D1_L16=[75385]Started Editing.
+D1_L17=[75913]Stopped Editing.
+D1_L18=[76181]Started Editing.
+D1_L19=[77370]Stopped Editing.
+D2=16-06-2024
+D2_L=16
+D2_L1=[59021]Project Opened.
+D2_L2=[59131]Started Editing.
+D2_L3=[59432]Stopped Editing.
+D2_L4=[59911]Started Editing.
+D2_L5=[61879]Stopped Editing.
+TotalEdit=173
+TotalDebug=0
+D2_E=102
+D2_D=0
+D2_L6=[61879]Project Closed.
+D2_L7=[69727]Project Opened.
+D2_L8=[69811]Started Editing.
+D2_L9=[70183]Stopped Editing.
+D2_L10=[70594]Started Editing.
+D2_L11=[73184]Stopped Editing.
+D2_L12=[73522]Started Editing.
+D2_L13=[75301]Stopped Editing.
+D2_L14=[75649]Started Editing.
+D2_L15=[76247]Stopped Editing.
+D2_L16=[85162]Project Closed.
+D3=19-06-2024
+D3_L=10
+D3_L1=[44188]Project Opened.
+D3_L2=[44252]Started Editing.
+D3_L3=[45100]Stopped Editing.
+D3_L4=[54582]Started Editing.
+D3_L5=[54903]Stopped Editing.
+D3_L6=[55744]Started Editing.
+D3_L7=[56874]Stopped Editing.
+D3_L8=[57765]Started Editing.
+D3_L9=[58245]Stopped Editing.
+D3_E=27
+D3_D=0
+D3_L10=[58429]Project Closed.
+D4=24-06-2024
+D4_L=12
+D4_L1=[54469]Project Opened.
+D4_L2=[54640]Started Editing.
+D4_L3=[54965]Stopped Editing.
+D4_L4=[54979]Started Editing.
+D4_L5=[56496]Stopped Editing.
+D4_L6=[56608]Started Editing.
+D4_L7=[56972]Stopped Editing.
+D4_L8=[57052]Started Editing.
+D4_L9=[58219]Stopped Editing.
+D4_L10=[58409]Started Editing.
+D4_L11=[58871]Stopped Editing.
+D4_E=44
+D4_D=0
+D4_L12=[58871]Project Closed.
+D5=26-06-2024
+D5_L=2
+D5_L1=[26534]Project Opened.
+D5_L2=[26562]Started Editing.
+
+[Opened Files]
+1=main.c
+t1=59
+Count=3
+2=main.h
+t2=59
+3=lcd_8bits.c
+t3=1
+[main.c]
+Type=4
+
+[defines]
+buildcount=134
+[Units]
+Count=1
+1=main (main)

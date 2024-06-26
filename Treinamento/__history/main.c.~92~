@@ -1,0 +1,102 @@
+// Vitor Augusto Goncalves Reis
+#include <main.h>
+
+int1           fim_tempo = 0;
+unsigned int8  tempo = 125;
+#define  V_TEMPO  125
+
+#INT_TIMER0
+void  TIMER0_isr(void) 
+{
+   set_timer0(get_timer0() + 6);
+   tempo--;
+   if (tempo == 0)
+   {
+      tempo = V_TEMPO;
+      fim_tempo = 1;
+   }
+}
+
+
+void Lcd_Command(char cmd) {
+    // Enviar comando ao LCD
+    RS = 0; // Modo comando
+    // Enviar parte alta
+    PORTB = (PORTB & 0x0F) | (cmd & 0xF0);
+    EN = 1;
+    __delay_ms(1);
+    EN = 0;
+    __delay_ms(1);
+    // Enviar parte baixa
+    PORTB = (PORTB & 0x0F) | ((cmd << 4) & 0xF0);
+    EN = 1;
+    __delay_ms(1);
+    EN = 0;
+    __delay_ms(1);
+}
+
+void Lcd_Init() {
+    // Inicializar o LCD em modo de 4 bits
+    TRISB = 0x00;
+    __delay_ms(20);
+    Lcd_Command(0x02); // Inicialização em 4 bits
+    Lcd_Command(0x28); // Função do LCD: 4 bits, 2 linhas, 5x7 pixels
+    Lcd_Command(0x0C); // Display ligado, cursor desligado
+    Lcd_Command(0x06); // Incrementar automaticamente o cursor
+    Lcd_Command(0x01); // Limpar display
+    __delay_ms(2);
+}
+
+void Lcd_Write(char data) {
+    // Escrever dado no LCD
+    RS = 1; // Modo dado
+    // Enviar parte alta
+    PORTB = (PORTB & 0x0F) | (data & 0xF0);
+    EN = 1;
+    __delay_ms(1);
+    EN = 0;
+    __delay_ms(1);
+    // Enviar parte baixa
+    PORTB = (PORTB & 0x0F) | ((data << 4) & 0xF0);
+    EN = 1;
+    __delay_ms(1);
+    EN = 0;
+    __delay_ms(1);
+}
+
+void Lcd_Set_Cursor(char row, char column) {
+    char pos;
+    if (row == 1)
+        pos = 0x80 + column - 1;
+    else if (row == 2)
+        pos = 0xC0 + column - 1;
+    Lcd_Command(pos);
+}
+
+void Lcd_Print(char* str) {
+    while (*str) {
+        Lcd_Write(*str++);
+    }
+}
+
+void main()
+{
+   setup_timer_0(RTCC_INTERNAL|RTCC_DIV_16|RTCC_8_BIT);      
+   enable_interrupts(INT_TIMER0);
+   REG_INTCON = REG_INTCON | 0B10000000;        
+   lcd_init();
+   
+   printf(lcd_write_dat, "TA:");
+   lcd_gotoxy(10,1);
+   while(TRUE)
+   {
+         if (fim_tempo)
+         {
+            fim_tempo = 0;
+         }
+         output_high(LAMPADA);
+   }
+}
+
+
+

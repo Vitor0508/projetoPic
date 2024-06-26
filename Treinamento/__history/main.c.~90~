@@ -1,0 +1,41 @@
+// Vitor Augusto Goncalves Reis
+#include <main.h>
+#include "lcd_8bits.c"
+
+
+int1           fim_tempo = 0;
+unsigned int8  tempo = 125;
+#define  V_TEMPO  125
+
+#INT_TIMER0
+void  TIMER0_isr(void) 
+{
+   set_timer0(get_timer0() + 6);
+   tempo--;
+   if (tempo == 0)
+   {
+      tempo = V_TEMPO;
+      fim_tempo = 1;
+   }
+}
+
+void main()
+{
+   setup_timer_0(RTCC_INTERNAL|RTCC_DIV_16|RTCC_8_BIT);      
+   enable_interrupts(INT_TIMER0);
+   REG_INTCON = REG_INTCON | 0B10000000;        
+   lcd_init();
+   
+   printf(lcd_write_dat, "TA:");
+   lcd_gotoxy(10,1);
+   while(TRUE)
+   {
+         if (fim_tempo)
+         {
+            fim_tempo = 0;
+         }
+         output_high(LAMPADA);
+   }
+}
+
+

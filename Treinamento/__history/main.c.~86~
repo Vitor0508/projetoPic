@@ -1,0 +1,106 @@
+// Vitor Augusto Goncalves Reis
+#include <main.h>
+
+int1           fim_tempo = 0;
+int1           acao = 0;
+int1           acao2 = 0;
+int1           piscando = 0;
+unsigned int8  tempo = 125;
+int8           num_freq = 0;
+int8           freq[10] = {0,62,75,88,95,100,105,110,113,115};
+char codigo_segmento[10] = {254,56,221,125,59,119,247,60,255,127};
+unsigned int8 unidade, filtro, filtro2;
+#define  V_TEMPO  125
+
+#INT_TIMER0
+void  TIMER0_isr(void) 
+{
+   set_timer0(get_timer0() + 6);
+   tempo--;
+   if (tempo == 0)
+   {
+      tempo = V_TEMPO - freq[num_freq];
+      fim_tempo = 1;
+   }
+}
+
+void main()
+{
+   setup_timer_0(RTCC_INTERNAL|RTCC_DIV_16|RTCC_8_BIT);      
+   enable_interrupts(INT_TIMER0);
+   REG_INTCON = REG_INTCON | 0B10000000;           
+   output_low(LAMPADA);
+   output_b(codigo_segmento[unidade]);
+   while(TRUE)
+   {
+      if (piscando)
+      {
+         if (fim_tempo)
+         {
+            fim_tempo = 0;
+            output_toggle(LAMPADA);
+         }
+      }
+      if ((input(LIGA) == 0) && (piscando == 0))
+      {
+         piscando = 1;
+         output_high(LAMPADA);
+         tempo = V_TEMPO - freq[num_freq];
+         fim_tempo = 0;         
+      }
+      if (input(DESLIGA) == 0)
+      {
+         piscando = 0;
+         output_low(LAMPADA);
+      }
+      if (input(AUMENTA) == 0)
+      {
+         if (acao == 0)
+         {
+            filtro--;
+            if(filtro == 0)
+            {
+               acao = 1;
+               if(unidade < 9)
+               {
+                  unidade++;
+                  num_freq++;
+               }
+               output_b(codigo_segmento[unidade]);
+            }
+         }
+         
+      }
+      else
+         {
+            acao = 0;
+            filtro = 200;
+         }
+      if (input(DIMINUI) == 0)
+      {
+         if (acao2 == 0)
+         {
+            filtro2--;
+            if(filtro2 == 0)
+            {
+               acao2 = 1;
+               if(unidade > 0)
+               {
+                  unidade--;
+                  num_freq--;
+               }
+               output_b(codigo_segmento[unidade]);
+            }
+         }
+         
+      }
+      else
+         {
+            acao2 = 0;
+            filtro2 = 200;
+         }
+
+   }
+}
+
+

@@ -1,0 +1,257 @@
+#include <main.h>
+#include "lcd_8bits.c"
+
+int1 tempo_finalizado = 0;
+int1 em_processo = 0;
+int1 qual_tela = 0;
+int1           acao = 0;
+int1           acao2 = 0;
+int1           acao3 = 0;
+const int8 CONTADOR_TEMPO_INIT = 125;
+int8 contador_tempo = CONTADOR_TEMPO_INIT;
+int16 leitura_potenciometro = 0, leitura_sensor = 0;
+int16 leitura_potenciometro_c = 0, leitura_sensor_c = 0;
+float leitura_potenciometro_cf = 0, leitura_sensor_cf = 0, histerese_c = 0.1;
+int16 histerese = 1;
+int16  hu = 1;
+int16  hd = 0;
+unsigned int8 filtro, filtro2, filtro3;
+
+#INT_TIMER0
+void TIMER0_isr(void) 
+{
+    set_timer0(get_timer0() + 6);
+    contador_tempo--;
+    if (contador_tempo == 0)
+    {
+        contador_tempo = CONTADOR_TEMPO_INIT;
+        tempo_finalizado = 1;
+    }
+}
+
+void main()
+{
+    setup_adc_ports(AN0_AN1_AN3);
+    setup_adc(ADC_CLOCK_INTERNAL);
+    setup_timer_0(RTCC_INTERNAL | RTCC_DIV_16 | RTCC_8_BIT); 
+
+    lcd_init();
+   
+    
+    printf(lcd_write_dat, "TA:");
+    lcd_gotoxy(10,1);
+    
+    printf(lcd_write_dat, "TM:");
+    lcd_gotoxy(1,2);
+    
+    printf(lcd_write_dat, "P:OF");
+    lcd_gotoxy(7,2);
+    
+    printf(lcd_write_dat, "R:OF");
+    lcd_gotoxy(12,2);
+    printf(lcd_write_dat, "H:");
+    
+
+    enable_interrupts(INT_TIMER0);
+    enable_interrupts(GLOBAL);
+
+    output_low(resistor);
+    
+
+    while (TRUE)
+    {
+        if (tempo_finalizado)
+        {
+            tempo_finalizado = 0;
+            set_adc_channel(0);
+            leitura_sensor = read_adc();
+            set_adc_channel(1);
+            delay_us(40);
+            leitura_potenciometro = read_adc();
+            
+            leitura_potenciometro_c = (0.12 * leitura_potenciometro) - 15.02; 
+            leitura_sensor_c = (0.12 * leitura_sensor) - 15.02;
+            leitura_potenciometro_cf = (0.12 * leitura_potenciometro) - 15.02; 
+            leitura_sensor_cf = (0.12 * leitura_sensor) - 15.02;
+
+            if (leitura_potenciometro < 341)
+            {
+                leitura_potenciometro = 341;
+            }
+            if (leitura_potenciometro > 742)
+            {
+                leitura_potenciometro = 742;
+            }
+   
+            if(qual_tela == 0)
+            {
+               lcd_gotoxy(4, 1);
+               printf(lcd_write_dat, "%04lu", leitura_potenciometro);
+
+               lcd_gotoxy(13, 1);
+               printf(lcd_write_dat, "%04lu", leitura_sensor);
+               
+               lcd_gotoxy(14,2);
+               printf(lcd_write_dat, "%lu.", hd);
+               
+               lcd_gotoxy(16,2);
+               printf(lcd_write_dat, "%lu", hu);
+            }
+            if(qual_tela == 1)
+            {
+               lcd_gotoxy(4, 1);
+               printf(lcd_write_dat, "%04lu", leitura_potenciometro_c);
+
+               lcd_gotoxy(16, 1);
+               printf(lcd_write_dat, "%04lu", leitura_sensor_c);
+               
+               lcd_gotoxy(14,2);
+               printf(lcd_write_dat, "%lu", hd);
+               
+               lcd_gotoxy(16,2);
+               printf(lcd_write_dat, "%lu", hu);
+            }
+            
+        }
+
+        if (input(liga) == 0)
+        {   
+             if (acao == 0)
+               {
+               filtro--;
+               if(filtro == 0)
+               {
+                  acao = 1;
+                  if(em_processo == 1)
+                  {
+                     em_processo = 0;
+                        output_low(resistor);
+            
+                        lcd_gotoxy(4, 2);
+                        printf(lcd_write_dat, "F");
+            
+                        lcd_gotoxy(10, 2);
+                        printf(lcd_write_dat, "F");
+                  }
+                  else
+                  {
+                     em_processo = 1;
+                  lcd_gotoxy(4, 2);
+                  printf(lcd_write_dat, "N");
+                  }
+                  
+               }
+               }
+         
+      }
+      else
+         {
+            acao = 0;
+            filtro = 200;
+         }
+        
+        if (input(aumenta) == 0)
+        {   
+             if (acao2 == 0)
+               {
+               filtro2--;
+               if(filtro2 == 0)
+               {
+                  acao2 = 1;
+                 if(histerese < 20) 
+                   histerese = histerese + 1;
+                   
+                 if(histerese_c < 9.9)
+                 {
+                    histerese_c = histerese_c + 0.1;
+                    hu++;
+                    if(hu == 10)
+                    {
+                        hu = 0;
+                        hd++;
+                    }
+                 }
+               }
+               }
+         
+      }
+      else
+         {
+            acao2 = 0;
+            filtro2 = 200;
+         }
+         if (input(diminui) == 0)
+        {   
+             if (acao3 == 0)
+               {
+               filtro3--;
+               if(filtro3 == 0)
+               {
+                  acao3 = 1;
+                 if(histerese > 1) 
+                   histerese = histerese - 0.1;
+                 
+                 if(histerese_c > 0.1)
+                 {
+                    histerese_c = histerese_c - 0.1;
+                    hu--;
+                    if(hu == 0)
+                    {
+                        hu = 9;
+                        hd--;
+                    }
+                 }
+                  
+               }
+               }
+         
+      }
+      else
+         {
+            acao3 = 0;
+            filtro3 = 200;
+         }
+        if (input(tela) == 0)
+        {
+            if(qual_tela == 0)
+               qual_tela = 1;
+            else
+               qual_tela = 0;
+               
+            if(qual_tela == 0)
+        {
+            lcd_gotoxy(1, 1);
+            printf(lcd_write_dat, "TA:%04lu  TM:%04lu ok2",leitura_potenciometro, leitura_sensor);
+            lcd_gotoxy(12, 2);
+            printf(lcd_write_dat, "H:");
+        }
+        if(qual_tela == 1)
+        {   
+            lcd_gotoxy(1, 1);
+            printf(lcd_write_dat, "TA:%04lu  TM:%04lu ok2",leitura_potenciometro_c, leitura_sensor_c);
+            lcd_gotoxy(12, 2);
+            printf(lcd_write_dat, "H:");
+        }
+
+            
+            delay_us(40000);
+        }    
+        if (em_processo)
+        {
+            if (leitura_sensor_cf >= leitura_potenciometro_cf + histerese_c)
+            {
+                output_low(resistor);
+                lcd_gotoxy(10, 2);
+                printf(lcd_write_dat, "F");
+            }
+            else if (leitura_sensor_cf <= leitura_potenciometro_cf - histerese_c)
+            {
+                output_high(resistor);
+                lcd_gotoxy(10, 2);
+                printf(lcd_write_dat, "N");
+            }
+        }
+    }
+}
+
+

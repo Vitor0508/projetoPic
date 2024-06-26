@@ -1,0 +1,111 @@
+// Vitor Augusto Goncalves Reis
+#include <main.h>
+
+int1           fim_tempo = 0;
+unsigned int8  tempo = 125;
+#define  V_TEMPO  125
+
+#INT_TIMER0
+void  TIMER0_isr(void) 
+{
+   set_timer0(get_timer0() + 6);
+   tempo--;
+   if (tempo == 0)
+   {
+      tempo = V_TEMPO;
+      fim_tempo = 1;
+   }
+}
+
+void lcd_enable_pulse() {
+    output_high(LCD_EN_PIN);
+    delay_us(1);
+    output_low(LCD_EN_PIN);
+    delay_us(1);
+}
+
+// Função para enviar comandos ao LCD
+void lcd_send_nibble(unsigned int8 nibble) {
+    output_bit(LCD_D4_PIN, bit_test(nibble, 0));
+    output_bit(LCD_D5_PIN, bit_test(nibble, 1));
+    output_bit(LCD_D6_PIN, bit_test(nibble, 2));
+    output_bit(LCD_D7_PIN, bit_test(nibble, 3));
+    lcd_enable_pulse();
+}
+
+void lcd_send_byte(unsigned int8 rs, unsigned int8 data) {
+    output_bit(LCD_RS_PIN, rs);
+    lcd_send_nibble(data >> 4);
+    lcd_send_nibble(data);
+    delay_ms(2); // Aguarde para que o comando seja executado
+}
+
+void lcd_init() {
+    output_low(LCD_RS_PIN);
+    output_low(LCD_RW_PIN);
+    output_low(LCD_EN_PIN);
+    delay_ms(20); // Aguardar Power On Reset (POR)
+
+    // Sequência de inicialização para modo de 4 bits
+    lcd_send_nibble(0x03);
+    delay_ms(5);
+    lcd_send_nibble(0x03);
+    delay_us(200);
+    lcd_send_nibble(0x03);
+    lcd_send_nibble(0x02);
+
+    // Configurar o LCD
+    lcd_send_byte(0, 0x28); // Função: modo de 4 bits, 2 linhas, 5x8 pontos
+    lcd_send_byte(0, 0x0C); // Display ligado, cursor desligado
+    lcd_send_byte(0, 0x06); // Incrementar automaticamente o cursor
+    lcd_send_byte(0, 0x01); // Limpar display
+    delay_ms(2);
+}
+
+void lcd_gotoxy(unsigned int8 x, unsigned int8 y) {
+    unsigned int8 address;
+    if(y == 1)
+        address = 0x80 + (x - 1);
+    else if(y == 2)
+        address = 0xC0 + (x - 1);
+    lcd_send_byte(0, address);
+}
+
+void lcd_putc(char c) {
+    switch(c) {
+        case '\f':
+            lcd_send_byte(0, 0x01); // Limpar display
+            delay_ms(2);
+            break;
+        case '\n':
+            lcd_gotoxy(1, 2);
+            break;
+        case '\b':
+            lcd_send_byte(0, 0x10); // Cursor para a esquerda
+            break;
+        default:
+            lcd_send_byte(1, c);
+            break;
+    }
+}
+void main()
+{
+   setup_timer_0(RTCC_INTERNAL|RTCC_DIV_16|RTCC_8_BIT);      
+   enable_interrupts(INT_TIMER0);
+   REG_INTCON = REG_INTCON | 0B10000000;
+   
+   lcd_init();
+   lcd_gotoxy(1, 1);
+   printf(lcd_putc, "Hello, World!");
+   while(TRUE)
+   {
+         if (fim_tempo)
+         {
+            fim_tempo = 0;
+         }
+         output_high(LAMPADA);
+   }
+}
+
+
+
